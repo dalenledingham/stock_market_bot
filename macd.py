@@ -1,5 +1,6 @@
 import yfinance as yf
 import numpy as np
+import graph
 
 
 # Balance variables for backtesting
@@ -109,4 +110,6 @@ if __name__ == '__main__':
 
   # Print results if held at first buy
   print('Balance if held: ' + str(start_balance + (df['Close'][-1] * first_qty) - (first_price * first_qty)))
-  
+
+  # Plot dataframe, opens in browser
+  graph.plot_data(df)
