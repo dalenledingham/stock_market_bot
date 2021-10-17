@@ -1,4 +1,5 @@
 import yfinance as yf
+import numpy as np
 
 
 def create_dataframe(ticker):
@@ -16,6 +17,20 @@ def create_dataframe(ticker):
   df['Histogram'] = df.index.map(histogram)
 
   return df
+
+
+def backtest():
+  """Backtest against historical data"""
+
+  for h in df['Histogram']:
+    if h == np.nan:
+      continue
+    elif h > 0:
+      # fake_buy()
+      pass
+    elif h < 0:
+      # fake_sell()
+      pass
 
 
 if __name__ == '__main__':
