@@ -15,6 +15,7 @@ api = tradeapi.REST(key_id=APCA_API_KEY_ID, secret_key=APCA_API_SECRET_KEY, base
 
 
 def check_market_open():
+  """Check if market is open, wait until open if closed"""
   clock = api.get_clock()
 
   if not clock.is_open:
@@ -51,12 +52,16 @@ def run(symbol, period):
     portfolio = api.list_positions()
 
     df = create_dataframe(symbol, period)
-    
+    last_price = df['Close'][-1]
+
+    if float(account.buying_power) > last_price:
+      qty = float(account.buying_power) // last_price
+    else: qty = 0
+
     if not portfolio and df['Histogram'][-1] > 0:
-      last_price = df['Close'][-1]
-      qty = account.buying_power // last_price
-      submit_order(symbol, qty, 'buy')
-      print('BUY')
+      if qty > 0:
+        submit_order(symbol, qty, 'buy')
+        print('BUY')
     elif portfolio and df['Histogram'][-1] < 0:
       qty = portfolio[-1].qty
       submit_order(symbol, qty, 'sell')
@@ -81,12 +86,13 @@ def submit_order(symbol, qty, side):
 
 
 if __name__ == '__main__':
-  run('AAPL', '3mo')
+  symbol = 'AAPL'
+  run(symbol, '3mo')
 
   # # Backtest against historical data
-  # df = create_dataframe('AAPL', '1y')
+  # df = create_dataframe(symbol, '1y')
   # print(df)
   # macd_backtest.backtest(df)
 
   # # Plot dataframe, opens in browser
-  # graph.plot_data(df)
+  # graph.plot_data(symbol, df)

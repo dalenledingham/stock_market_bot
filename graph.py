@@ -2,11 +2,11 @@ from plotly import graph_objects as go
 from plotly import subplots as subplt
 import numpy as np
 
-def plot_data(df):
+def plot_data(symbol, df):
   """Plot data for ticker dataframe"""
 
   # Construct 2x1 Plotly figure
-  fig = subplt.make_subplots(rows=2, cols=1)
+  fig = subplt.make_subplots(rows=2, cols=1, subplot_titles=(symbol + ' Price','MACD and Histogram'))
 
   # Plot ticker price candles
   fig.append_trace(
