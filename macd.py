@@ -1,27 +1,33 @@
+import alpaca_trade_api as tradeapi
 import yfinance as yf
-import numpy as np
+import datetime
+import time
 import graph
+import keys
+import macd_backtest
 
 
-# Balance variables for backtesting
-start_balance = 100000
-balance = start_balance
-
-# Quantity and position variables
-qty = 0
-position_qty = 0
-position_held = False
-count = 0
-
-# First buy variables
-first_buy = True
-first_price = 0
-first_qty = 0
+# Alpaca API connection
+APCA_API_KEY_ID = keys.key_id
+APCA_API_SECRET_KEY = keys.secret_key
+APCA_API_BASE_URL = keys.base_url
+api = tradeapi.REST(key_id=APCA_API_KEY_ID, secret_key=APCA_API_SECRET_KEY, base_url=APCA_API_BASE_URL)
 
 
-def create_dataframe(ticker):
+def check_market_open():
+  clock = api.get_clock()
+
+  if not clock.is_open:
+    next_open = clock.next_open.timestamp()
+    now = datetime.datetime.now().timestamp()
+    seconds = next_open - now
+    print('Market is closed')
+    time.sleep(seconds)
+
+
+def create_dataframe(symbol, period):
   """Get datafram from Yahoo Finance"""
-  df = yf.Ticker(ticker).history(period='1y')[['Open','High','Low','Close','Volume']]
+  df = yf.Ticker(symbol).history(period=period)[['Open','High','Low','Close','Volume']]
 
   ema_12 = df['Close'].ewm(span=12, adjust=False, min_periods=12).mean()
   ema_26 = df['Close'].ewm(span=26, adjust=False, min_periods=26).mean()
@@ -36,80 +42,51 @@ def create_dataframe(ticker):
   return df
 
 
-def backtest(df):
-  """Backtest against historical data"""
-  global count
+def run(symbol, period):
+  """Run algorithm on live market"""
+  while True:
+    check_market_open()
 
-  for h in df['Histogram']:
-    if h == np.nan:
-      count += 1
-      continue
-    elif h > 0 and not position_held:
-      fake_buy(df)
-    elif h < 0 and position_held:
-      fake_sell(df)
-    else:
-      count += 1
+    account = api.get_account()
+    portfolio = api.list_positions()
 
+    df = create_dataframe(symbol, period)
+    
+    if not portfolio and df['Histogram'][-1] > 0:
+      last_price = df['Close'][-1]
+      qty = account.buying_power // last_price
+      submit_order(symbol, qty, 'buy')
+      print('BUY')
+    elif portfolio and df['Histogram'][-1] < 0:
+      qty = portfolio[-1].qty
+      submit_order(symbol, qty, 'sell')
+      print('SELL')
 
-def fake_buy(df):
-  """Buy function for backtesting"""
-  global balance
-  global qty
-  global position_qty
-  global position_held
-  global first_buy
-  global first_price
-  global first_qty
-  global count
+    if portfolio: print(portfolio)
+    else: print('No positions')
 
-  last_price = df['Close'][count]
-
-  qty = balance // last_price
-
-  if first_buy:
-    first_buy = False
-    first_price = last_price
-    first_qty = qty
-
-  if qty > 0:
-    balance -= last_price * qty
-    position_held = True
-    position_qty = qty
-
-  count += 1
+    time.sleep(60)
 
 
-def fake_sell(df):
-  """Sell function for backtesting"""
-  global balance
-  global qty
-  global position_held
-  global count
-
-  last_price = df['Close'][count]
-
-  balance += last_price * qty
-  position_held = False
-  qty = 0
-  
-  count += 1
+def submit_order(symbol, qty, side):
+  """Submit buy or sell order with a trailing stop of 2%"""
+  api.submit_order(
+    symbol = symbol,
+    qty = qty,
+    side = side,
+    type = 'trailing_stop',
+    trail_percent = 2.0,
+    time_in_force = 'gtc',
+  )
 
 
 if __name__ == '__main__':
-  df = create_dataframe('AAPL')
-  print(df)
+  run('AAPL', '3mo')
 
-  backtest(df)
+  # # Backtest against historical data
+  # df = create_dataframe('AAPL', '1y')
+  # print(df)
+  # macd_backtest.backtest(df)
 
-  # Print algorithm results
-  if position_held:
-    print('Balance from algorithm: ' + str(balance + df['Close'][-1] * qty))
-  else:
-    print('Balance from algorithm: ' + str(balance))
-
-  # Print results if held at first buy
-  print('Balance if held: ' + str(start_balance + (df['Close'][-1] * first_qty) - (first_price * first_qty)))
-
-  # Plot dataframe, opens in browser
-  graph.plot_data(df)
+  # # Plot dataframe, opens in browser
+  # graph.plot_data(df)
