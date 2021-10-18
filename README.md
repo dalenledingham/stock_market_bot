@@ -5,14 +5,14 @@ This repository contains the the code for my stock trading bot using the Alpaca 
 
 The implemented strategy is an analysis of a stock's MACD (Moving Average Convergence Divergence) to determine buy/sell signals. The bot examines one stock at a time. 
 
-To use this bot, first clone this repository. Then create an account on Alpaca and generate your API keys. Put those keys in a new file called `keys.py` in the same directory with the following naming conventions: 
+To use this bot, first clone this repository. Then create an account on Alpaca and generate your API keys. Put those keys in a new file called _keys.py_ in the same directory with the following naming conventions: 
 ```
 key_id = <YOUR_KEY_ID>
 secret_key = <YOUR_SECRET_KEY>
 base_url = 'https://paper-api.alpaca.markets' # use this url for paper trading
 ```
 
-Check the [requirements.txt](/requirments.txt) file and install any required libraries using ```pip install {module}```
+Check the [requirements.txt](/requirements.txt) file and install any required libraries using ```pip install {module}```
 
 Then you can run the program using the command ```python3 macd.py```
 
