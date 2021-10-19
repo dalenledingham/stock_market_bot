@@ -22,7 +22,7 @@ def check_market_open():
     next_open = clock.next_open.timestamp()
     now = datetime.datetime.now().timestamp()
     seconds = next_open - now
-    print('Market is closed')
+    print('Market is closed\n')
     time.sleep(seconds)
 
 
@@ -50,6 +50,7 @@ def run(symbol, period):
 
     account = api.get_account()
     portfolio = api.list_positions()
+    open_orders = api.list_orders(status='open')
 
     df = create_dataframe(symbol, period)
     last_price = df['Close'][-1]
@@ -58,30 +59,61 @@ def run(symbol, period):
       qty = float(account.buying_power) // last_price
     else: qty = 0
 
-    if not portfolio and df['Histogram'][-1] > 0:
+    if not portfolio and not open_orders and df['Histogram'][-1] > 0:
       if qty > 0:
-        submit_order(symbol, qty, 'buy')
+        buy(symbol, qty)
+        trailing_stop_sell(symbol, qty)
         print('BUY')
     elif portfolio and df['Histogram'][-1] < 0:
       qty = portfolio[-1].qty
-      submit_order(symbol, qty, 'sell')
+      sell(symbol, qty)
       print('SELL')
 
-    if portfolio: print(portfolio)
-    else: print('No positions')
+    print('Portfolio:')
+    if portfolio: 
+      for position in portfolio:
+        print(f'{position.symbol}')
+        print(f'\tShares: {position.qty}')
+        print(f'\tCurrent Price: {position.current_price}')
+        print(f'\tAvg Entry Price: {position.avg_entry_price}')
+        print(f'\tMarket Value: {position.market_value}')
+        print(f'\tToday Gain/Loss: {position.unrealized_intraday_pl} ({position.unrealized_intraday_plpc})')
+        print(f'\tTotal Gain/Loss: {position.unrealized_pl} ({position.unrealized_plpc})')
+      print()
+    else: print('No positions\n')
 
     time.sleep(60)
 
 
-def submit_order(symbol, qty, side):
-  """Submit buy or sell order with a trailing stop of 2%"""
+def buy(symbol, qty):
+  """Submit buy order"""
   api.submit_order(
     symbol = symbol,
     qty = qty,
-    side = side,
+    side = buy,
+    type = 'market',
+    time_in_force = 'day',
+  )
+
+def trailing_stop_sell(symbol, qty):
+  """Submit a sell order with a traling stop of 2%"""
+  api.submit_order(
+    symbol = symbol,
+    qty = qty,
+    side = sell,
     type = 'trailing_stop',
     trail_percent = 2.0,
-    time_in_force = 'gtc',
+    time_in_force = 'day',
+  )
+
+def sell(symbol, qty):
+  """Submit a sell order"""
+  api.submit_order(
+    symbol = symbol,
+    qty = qty,
+    side = buy,
+    type = 'market',
+    time_in_force = 'day',
   )
 
 
