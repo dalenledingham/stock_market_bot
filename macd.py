@@ -2,9 +2,9 @@ import alpaca_trade_api as tradeapi
 import yfinance as yf
 import datetime
 import time
-import graph
 import keys
 import macd_backtest
+import macd_graph
 
 
 # Alpaca API connection
@@ -77,8 +77,8 @@ def run(symbol, period):
         print(f'\tCurrent Price: {position.current_price}')
         print(f'\tAvg Entry Price: {position.avg_entry_price}')
         print(f'\tMarket Value: {position.market_value}')
-        print(f'\tToday Gain/Loss: {position.unrealized_intraday_pl} ({position.unrealized_intraday_plpc})')
-        print(f'\tTotal Gain/Loss: {position.unrealized_pl} ({position.unrealized_plpc})')
+        print(f'\tIntraday Gain/Loss: {position.unrealized_intraday_pl} ({position.unrealized_intraday_plpc}%)')
+        print(f'\tTotal Gain/Loss: {position.unrealized_pl} ({position.unrealized_plpc}%)')
       print()
     else: print('No positions\n')
 
