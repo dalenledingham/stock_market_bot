@@ -2,6 +2,7 @@ from plotly import graph_objects as go
 from plotly import subplots as subplt
 import numpy as np
 
+
 def plot_data(symbol, df):
   """Plot data for ticker dataframe"""
 

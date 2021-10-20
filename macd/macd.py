@@ -1,17 +1,10 @@
-import alpaca_trade_api as tradeapi
 import yfinance as yf
 import datetime
 import time
-import keys
-import macd_backtest
-import macd_graph
+import main
 
 
-# Alpaca API connection
-APCA_API_KEY_ID = keys.key_id
-APCA_API_SECRET_KEY = keys.secret_key
-APCA_API_BASE_URL = keys.base_url
-api = tradeapi.REST(key_id=APCA_API_KEY_ID, secret_key=APCA_API_SECRET_KEY, base_url=APCA_API_BASE_URL)
+api = main.api
 
 
 def check_market_open():
@@ -95,6 +88,7 @@ def buy(symbol, qty):
     time_in_force = 'day',
   )
 
+
 def trailing_stop_sell(symbol, qty):
   """Submit a sell order with a traling stop of 2%"""
   api.submit_order(
@@ -106,6 +100,7 @@ def trailing_stop_sell(symbol, qty):
     time_in_force = 'day',
   )
 
+
 def sell(symbol, qty):
   """Submit a sell order"""
   api.submit_order(
@@ -115,16 +110,3 @@ def sell(symbol, qty):
     type = 'market',
     time_in_force = 'day',
   )
-
-
-if __name__ == '__main__':
-  symbol = 'AAPL'
-  run(symbol, '3mo')
-
-  # # Backtest against historical data
-  # df = create_dataframe(symbol, '1y')
-  # print(df)
-  # macd_backtest.backtest(df)
-
-  # # Plot dataframe, opens in browser
-  # graph.plot_data(symbol, df)
