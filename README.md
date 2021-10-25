@@ -3,7 +3,7 @@
 
 This repository contains the the code for my stock trading bot using the Alpaca Trade API. 
 
-The implemented strategy is an analysis of a stock's MACD (Moving Average Convergence Divergence) to determine buy/sell signals. The bot examines one stock at a time. 
+The implemented strategy is an analysis of a stock's MACD (Moving Average Convergence Divergence) to determine buy/sell signals. 
 
 To use this bot, first clone this repository. Then create an account on Alpaca and generate your API keys. Put those keys in a new file called _keys.py_ in the same directory with the following naming conventions: 
 ```
@@ -12,7 +12,7 @@ secret_key = <YOUR_SECRET_KEY>
 base_url = 'https://paper-api.alpaca.markets' # use this url for paper trading
 ```
 
-Check the [requirements.txt](/requirements.txt) file and install any required libraries using ```pip install {module}```
+Check the [requirements.txt](/requirements.txt) file and install any required libraries using ```pip install {library}```
 
 Then you can run the program using the command ```python3 macd.py```
 
@@ -20,10 +20,11 @@ The program will run infinitely, so to stop it you must execute a keyboard inter
 
 If you wish to backtest the program agains historical data rather than run it live, comment out or delete the `run()` function call and uncomment the following code block:
 ```
-# Backtest against historical data
-df = create_dataframe('AAPL', '1y')
-print(df)
-macd_backtest.backtest(df)
+ # Backtest against historical data
+  for symbol in symbols:
+    df = macd.create_dataframe(symbol, '1y')
+    print(df)
+    macd_backtest.backtest(df)
 ```
 
 Run the program again to backtest the algorithm. 
