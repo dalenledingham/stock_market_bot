@@ -15,9 +15,9 @@ if __name__ == '__main__':
   macd.run(symbols, '3mo')
 
   # # Backtest against historical data
-  # df = macd.create_dataframe(symbol, '1y')
-  # print(df)
-  # macd_backtest.backtest(df)
-
-  # # Plot dataframe, opens in browser
-  # macd_graph.plot_data(symbol, df)
+  # for symbol in symbols:
+  #   df = macd.create_dataframe(symbol, '1y')
+  #   print(df)
+  #   macd_backtest.backtest(df)
+  #   # Plot dataframe, opens in browser
+  #   macd_graph.plot_data(symbol, df)

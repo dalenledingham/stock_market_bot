@@ -5,8 +5,7 @@ import main
 
 
 api = main.api
-account = api.get_account()
-
+# account = api.get_account()
 
 
 def check_market_open():
@@ -124,10 +123,8 @@ def sell(symbol, qty):
   )
 
 
-def print_portfolio():
+def print_portfolio(account, portfolio):
   """Print portfolio positions and equity"""
-  portfolio = api.list_positions()
-
   print('Portfolio:')
   if portfolio: 
     for position in portfolio:
@@ -150,6 +147,8 @@ def run(symbols, period):
   while True:
     check_market_open()
 
+    account = api.get_account()
+
     for symbol in symbols:
       df = create_dataframe(symbol, period)
       last_price = df['Close'][-1]
@@ -160,7 +159,9 @@ def run(symbols, period):
 
         # if buy signal
         if df['Histogram'][-1] > 0:
-          qty = add_to_position_qty(float(account.equity), float(account.buying_power), last_price, position)
+          equity = float(account.equity)
+          buying_power = float(account.buying_power)
+          qty = add_to_position_qty(equity, buying_power, last_price, position)
           if qty > 0:
             buy(symbol, qty)
             print(f'BUY {qty} shares of {symbol} for ${last_price * qty}')
@@ -181,6 +182,7 @@ def run(symbols, period):
             buy(symbol, qty)
             print(f'BUY {qty} shares of {symbol} for ${last_price * qty}')
 
-    print_portfolio()
+    portfolio = api.list_positions()
+    print_portfolio(account, portfolio)
 
     time.sleep(60)
