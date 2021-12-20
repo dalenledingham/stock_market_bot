@@ -45,7 +45,7 @@ def plot_data(symbol, df):
     ), row=2, col=1
   )
 
-  # Plot hisogram bars
+  # Plot histogram bars
   fig.append_trace(
     go.Bar(
       x=df.index,
