@@ -9,12 +9,12 @@ The implemented strategy is an analysis of a stock's MACD (Moving Average Conver
 To use this bot, first clone this repository. Then create an account on Alpaca and generate your API keys. Put those keys in a new file called _keys.py_ in the same directory with the following naming conventions:
 
 ```
-key_id = <YOUR_KEY_ID>
-secret_key = <YOUR_SECRET_KEY>
+key_id = '<YOUR_KEY_ID>'
+secret_key = '<YOUR_SECRET_KEY>'
 base_url = 'https://paper-api.alpaca.markets' # use this url for paper trading
 ```
 
-Check the [requirements.txt](/requirements.txt) file and install any required libraries using `pip install {library}`
+Check the [requirements.txt](/requirements.txt) file and install all required libraries using `pip install -r requirements.txt`
 
 Then you can run the program using the command `python3 main.py`
 
