@@ -23,14 +23,14 @@ if __name__ == "__main__":
     symbols = [position.symbol for position in positions]
 
     # Run in live market
-    macd.run(symbols, "3mo")
+    # macd.run(symbols, "3mo")
 
     # Backtest against historical data
-    # for position in positions:
-    #     account = macd_backtest.Account()
-    #     dataframe = macd.create_dataframe(position.ticker, "1y")
-    #     print(dataframe)
-    #     macd_backtest.backtest(account, position, dataframe)
+    for position in positions:
+        account = macd_backtest.Account()
+        dataframe = macd.create_dataframe(position.symbol, "1y")
+        print(dataframe)
+        macd_backtest.backtest(account, position, dataframe)
 
-    #     # Plot dataframe, opens in browser
-    #     macd_graph.plot_data(position.ticker, dataframe)
+        # Plot dataframe, opens in browser
+        # macd_graph.plot_data(position.symbol, dataframe)
