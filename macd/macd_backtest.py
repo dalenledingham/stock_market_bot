@@ -41,14 +41,12 @@ def backtest(account, position, dataframe):
         else:
             position.count += 1
 
-    # Print algorithm results
+    # Update final balance
     if position.position_held:
-        print(
-            "Balance from algorithm: "
-            + str(account.balance + dataframe["Close"][-1] * position.purchase_qty)
-        )
-    else:
-        print("Balance from algorithm: " + str(account.balance))
+        account.balance += dataframe["Close"][-1] * position.purchase_qty
+
+    # Print algorithm results
+    print("Balance from algorithm: " + str(account.balance))
 
     # Print results if held at first buy
     print(

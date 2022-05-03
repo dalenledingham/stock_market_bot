@@ -13,13 +13,19 @@ api = tradeapi.REST(
 
 
 if __name__ == "__main__":
-    symbols = ["AAPL"]
     #   macd.run(symbols, '3mo')
 
-    # # Backtest against historical data
-    for symbol in symbols:
-        df = macd.create_dataframe(symbol, "1y")
-        print(df)
-        macd_backtest.backtest(df)
-        # # Plot dataframe, opens in browser
-        # macd_graph.plot_data(symbol, df)
+    # Backtest against historical data
+    AAPL = macd_backtest.Position("AAPL")
+    KO = macd_backtest.Position("KO")
+    TSLA = macd_backtest.Position("TSLA")
+    positions = [AAPL, KO, TSLA]
+
+    for position in positions:
+        account = macd_backtest.Account()
+        dataframe = macd.create_dataframe(position.ticker, "1y")
+        print(dataframe)
+        macd_backtest.backtest(account, position, dataframe)
+
+        # Plot dataframe, opens in browser
+        # macd_graph.plot_data(position.ticker, dataframe)
