@@ -22,21 +22,21 @@ def check_market_open():
 
 def create_dataframe(symbol, period):
     """Get datafram from Yahoo Finance"""
-    df = yf.Ticker(symbol).history(period=period)[
+    dataframe = yf.Ticker(symbol).history(period=period)[
         ["Open", "High", "Low", "Close", "Volume"]
     ]
 
-    ema_12 = df["Close"].ewm(span=12, adjust=False, min_periods=12).mean()
-    ema_26 = df["Close"].ewm(span=26, adjust=False, min_periods=26).mean()
+    ema_12 = dataframe["Close"].ewm(span=12, adjust=False, min_periods=12).mean()
+    ema_26 = dataframe["Close"].ewm(span=26, adjust=False, min_periods=26).mean()
     macd = ema_12 - ema_26
     signal = macd.ewm(span=9, adjust=False, min_periods=9).mean()
     histogram = macd - signal
 
-    df["MACD"] = df.index.map(macd)
-    df["Signal"] = df.index.map(signal)
-    df["Histogram"] = df.index.map(histogram)
+    dataframe["MACD"] = dataframe.index.map(macd)
+    dataframe["Signal"] = dataframe.index.map(signal)
+    dataframe["Histogram"] = dataframe.index.map(histogram)
 
-    return df
+    return dataframe
 
 
 def check_for_position(symbol):
@@ -56,8 +56,8 @@ def new_position_qty(equity, buying_power, last_price):
     if buying_power > last_price:
 
         # set order quantity to not exceed more than 5% of portfolio equity (5% rule)
-        if buying_power > (equity * 0.05):
-            order_qty = equity * 0.05 // last_price
+        if buying_power > (equity * 0.1):
+            order_qty = equity * 0.1 // last_price
             return order_qty
         else:
             order_qty = buying_power // last_price
@@ -78,8 +78,8 @@ def add_to_position_qty(equity, buying_power, last_price, position):
 
         # set order quantity to not exceed more than 5% of portfolio equity (5% rule)
         # if can get at least one share while within 5% rule
-        if ((equity * 0.05) - float(position.market_value)) // last_price > 0:
-            order_qty = ((equity * 0.05) - float(position.market_value)) // last_price
+        if ((equity * 0.1) - float(position.market_value)) // last_price > 0:
+            order_qty = ((equity * 0.1) - float(position.market_value)) // last_price
             return order_qty
         else:
             order_qty = 0
@@ -98,18 +98,6 @@ def buy(symbol, qty):
         qty=qty,
         side="buy",
         type="market",
-        time_in_force="day",
-    )
-
-
-def trailing_stop_sell(symbol, qty):
-    """Submit a sell order with a traling stop of 2%"""
-    api.submit_order(
-        symbol=symbol,
-        qty=qty,
-        side="sell",
-        type="trailing_stop",
-        trail_percent=2.0,
         time_in_force="day",
     )
 
