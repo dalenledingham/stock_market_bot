@@ -5,7 +5,6 @@ import main
 
 
 api = main.api
-# account = api.get_account()
 
 
 def check_market_open():
@@ -115,7 +114,7 @@ def sell(symbol, qty):
 
 def print_portfolio(account, portfolio):
     """Print portfolio positions and equity"""
-    print("Portfolio:")
+    print("\nPortfolio:")
     if portfolio:
         for position in portfolio:
             print(f"{position.symbol}")
@@ -134,7 +133,7 @@ def print_portfolio(account, portfolio):
         print("No positions\n")
 
     print(f"Equity: {account.equity}")
-    print(f"Today Gain/Loss: {float(account.equity) - float(account.last_equity)}")
+    print(f"Today Gain/Loss: {float(account.equity) - float(account.last_equity)}\n")
 
 
 def run(symbols, period):
@@ -145,15 +144,16 @@ def run(symbols, period):
         account = api.get_account()
 
         for symbol in symbols:
-            df = create_dataframe(symbol, period)
-            last_price = df["Close"][-1]
+            dataframe = create_dataframe(symbol, period)
+            print(f'{symbol}: {dataframe["Histogram"][-1]}')
+            last_price = dataframe["Close"][-1]
 
             # if open position for this symbol exists
             if check_for_position(symbol):
                 position = api.get_position(symbol)
 
                 # if buy signal
-                if df["Histogram"][-1] > 0:
+                if dataframe["Histogram"][-1] > 0:
                     equity = float(account.equity)
                     buying_power = float(account.buying_power)
                     qty = add_to_position_qty(
@@ -161,23 +161,25 @@ def run(symbols, period):
                     )
                     if qty > 0:
                         buy(symbol, qty)
-                        print(f"BUY {qty} shares of {symbol} for ${last_price * qty}")
+                        print(f"\tBUY {qty} shares of {symbol} for ${last_price * qty}")
 
                 # if sell signal
-                elif df["Histogram"][-1] < 0:
+                elif dataframe["Histogram"][-1] < 0:
                     qty = position.qty
                     sell(symbol, qty)
-                    print(f"SELL {qty} shares of {symbol} for ${position.market_value}")
+                    print(
+                        f"\tSELL {qty} shares of {symbol} for ${position.market_value}"
+                    )
 
             # if no position for this symbol exists
             else:
-                if df["Histogram"][-1] > 0:
+                if dataframe["Histogram"][-1] > 0:
                     equity = float(account.equity)
                     buying_power = float(account.buying_power)
                     qty = new_position_qty(equity, buying_power, last_price)
                     if qty > 0:
                         buy(symbol, qty)
-                        print(f"BUY {qty} shares of {symbol} for ${last_price * qty}")
+                        print(f"\tBUY {qty} shares of {symbol} for ${last_price * qty}")
 
         portfolio = api.list_positions()
         print_portfolio(account, portfolio)

@@ -11,14 +11,14 @@ class Account:
 class Position:
     def __init__(
         self,
-        ticker,
+        symbol,
         position_held=False,
         position_qty=0,
         first_buy=True,
         first_price=0,
         first_qty=0,
     ):
-        self.ticker = ticker
+        self.symbol = symbol
         self.position_held = position_held
         self.position_qty = position_qty
         self.first_buy = first_buy
