@@ -14,7 +14,7 @@ secret_key = '<YOUR_SECRET_KEY>'
 base_url = 'https://paper-api.alpaca.markets' # use this url for paper trading
 ```
 
-Check the [requirements.txt](/requirements.txt) file and install all required libraries using `pip install -r requirements.txt`
+Check the [requirements.txt](/requirements.txt) file and install all required libraries using `pip3 install -r requirements.txt`
 
 Then you can run the program using the command `python3 main.py`
 
