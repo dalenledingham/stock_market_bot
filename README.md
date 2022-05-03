@@ -23,11 +23,18 @@ The program will run infinitely, so to stop it you must execute a keyboard inter
 If you wish to backtest the program agains historical data rather than run it live, comment out or delete the `run()` function call and uncomment the following code block:
 
 ```
- # Backtest against historical data
-  for symbol in symbols:
-    df = macd.create_dataframe(symbol, '1y')
-    print(df)
-    macd_backtest.backtest(df)
+# Backtest against historical data
+for position in positions:
+    account = macd_backtest.Account()
+    dataframe = macd.create_dataframe(position.symbol, "1y")
+    print(dataframe)
+    macd_backtest.backtest(account, position, dataframe)
 ```
 
 Run the program again to backtest the algorithm.
+
+To plot graphs using plotly, uncomment this line:
+
+```
+macd_graph.plot_data(position.symbol, dataframe)
+```
