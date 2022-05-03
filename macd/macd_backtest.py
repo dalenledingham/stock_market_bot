@@ -1,89 +1,91 @@
-import numpy as np
+import numpy
 
 
-# Balance variables for backtesting
-start_balance = 100000
-balance = start_balance
-
-# Quantity and position variables
-qty = 0
-position_qty = 0
-position_held = False
-count = 0
-
-# First buy variables
-first_buy = True
-first_price = 0
-first_qty = 0
+class Account:
+    def __init__(self, balance=100000, start_balance=100000, positions=[]):
+        self.balance = balance
+        self.start_balance = start_balance
+        self.positions = positions
 
 
-def backtest(df):
+class Position:
+    def __init__(
+        self,
+        ticker,
+        position_held=False,
+        position_qty=0,
+        first_buy=True,
+        first_price=0,
+        first_qty=0,
+    ):
+        self.ticker = ticker
+        self.position_held = position_held
+        self.position_qty = position_qty
+        self.first_buy = first_buy
+        self.first_price = first_price
+        self.first_qty = first_qty
+        self.count = 0
+        self.purchase_qty = 0
+
+
+def backtest(account, position, dataframe):
     """Backtest against historical data"""
-    global count
-
-    for h in df["Histogram"]:
-        if h == np.nan:
-            count += 1
+    for histogram in dataframe["Histogram"]:
+        if histogram == numpy.nan:
+            position.count += 1
             continue
-        elif h > 0 and not position_held:
-            fake_buy(df)
-        elif h < 0 and position_held:
-            fake_sell(df)
+        elif histogram > 0 and not position.position_held:
+            fake_buy(account, position, dataframe)
+        elif histogram < 0 and position.position_held:
+            fake_sell(account, position, dataframe)
         else:
-            count += 1
+            position.count += 1
 
     # Print algorithm results
-    if position_held:
-        print("Balance from algorithm: " + str(balance + df["Close"][-1] * qty))
+    if position.position_held:
+        print(
+            "Balance from algorithm: "
+            + str(account.balance + dataframe["Close"][-1] * position.purchase_qty)
+        )
     else:
-        print("Balance from algorithm: " + str(balance))
+        print("Balance from algorithm: " + str(account.balance))
 
     # Print results if held at first buy
     print(
         "Balance if held: "
-        + str(start_balance + (df["Close"][-1] * first_qty) - (first_price * first_qty))
+        + str(
+            account.start_balance
+            + (dataframe["Close"][-1] * position.first_qty)
+            - (position.first_price * position.first_qty)
+        )
     )
 
 
-def fake_buy(df):
+def fake_buy(account, position, dataframe):
     """Buy function for backtesting"""
-    global balance
-    global qty
-    global position_qty
-    global position_held
-    global first_buy
-    global first_price
-    global first_qty
-    global count
+    last_price = dataframe["Close"][position.count]
 
-    last_price = df["Close"][count]
+    position.purchase_qty = account.balance // last_price
 
-    qty = balance // last_price
+    if position.first_buy:
+        position.first_buy = False
+        position.first_price = last_price
+        position.first_qty = position.purchase_qty
 
-    if first_buy:
-        first_buy = False
-        first_price = last_price
-        first_qty = qty
+    if position.purchase_qty > 0:
+        account.balance -= last_price * position.purchase_qty
+        position.position_held = True
+        position.position_qty = position.purchase_qty
 
-    if qty > 0:
-        balance -= last_price * qty
-        position_held = True
-        position_qty = qty
-
-    count += 1
+    position.count += 1
 
 
-def fake_sell(df):
+def fake_sell(account, position, dataframe):
     """Sell function for backtesting"""
-    global balance
-    global qty
-    global position_held
-    global count
+    last_price = dataframe["Close"][position.count]
 
-    last_price = df["Close"][count]
+    account.balance += last_price * position.purchase_qty
+    position.position_held = False
+    position.position_qty = 0
 
-    balance += last_price * qty
-    position_held = False
-    qty = 0
-
-    count += 1
+    position.count += 1
